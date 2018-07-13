@@ -19,6 +19,41 @@ const resolveApp = relativePath => path.resolve(appDirectory, relativePath);
 
 const envPublicUrl = process.env.PUBLIC_URL;
 
+let customSymlinksPaths = [];
+let includingCustomNodeModulesPaths = [];
+
+const customSymlinksPath = path.resolve(resolveApp("src"), "./symlinks");
+if(fs.existsSync(customSymlinksPath)){
+  const symlinks = fs.readdirSync(customSymlinksPath);
+   symlinks.forEach((symlink)=>{
+
+    // The symlink has to have a ".symlink" extension.
+    if(path.extname(symlink) !== ".symlink"){
+      return;
+    }
+
+    //Do the things for customSymlinksPaths.
+    const currentSymlinkPath = path.resolve(customSymlinksPath, symlink);
+    const realPath = fs.realpathSync(currentSymlinkPath);
+
+    if(fs.lstatSync(realPath).isDirectory()){
+      customSymlinksPaths = realPath;
+    }else{
+      customSymlinksPaths = path.dirname(realPath);
+    }
+
+
+    //Do the things for includingCustomNodeModulesPaths.
+
+    //Note: The name of a symlink is also a node_module name!
+    const modulePath = path.resolve(resolveApp("node_modules"), symlink.replace(".symlink", ""));
+    includingCustomNodeModulesPaths.push(modulePath)
+  });
+}
+
+
+
+
 function ensureSlash(path, needsSlash) {
   const hasSlash = path.endsWith('/');
   if (hasSlash && !needsSlash) {
@@ -60,6 +95,8 @@ module.exports = {
   appNodeModules: resolveApp('node_modules'),
   publicUrl: getPublicUrl(resolveApp('package.json')),
   servedPath: getServedPath(resolveApp('package.json')),
+  customSymlinksPaths,
+  includingCustomNodeModulesPaths,
 };
 
 // @remove-on-eject-begin
@@ -83,6 +120,8 @@ module.exports = {
   // These properties only exist before ejecting:
   ownPath: resolveOwn('.'),
   ownNodeModules: resolveOwn('node_modules'), // This is empty on npm 3
+  customSymlinksPaths,
+  includingCustomNodeModulesPaths,
 };
 
 const ownPackageJson = require('../package.json');
@@ -113,6 +152,8 @@ if (
     // These properties only exist before ejecting:
     ownPath: resolveOwn('.'),
     ownNodeModules: resolveOwn('node_modules'),
+    customSymlinksPaths,
+    includingCustomNodeModulesPaths,
   };
 }
 // @remove-on-eject-end
