@@ -1,14 +1,14 @@
 {
-  "name": "react-scripts",
+  "name": "@calimoto-gmbh/calimoto-react-scripts",
   "version": "1.1.4",
-  "description": "Configuration and scripts for Create React App.",
-  "repository": "facebookincubator/create-react-app",
+  "description": "calimoto Configuration and scripts for Create React App.",
+  "repository": "calimoto-GmbH/create-react-app",
   "license": "MIT",
   "engines": {
     "node": ">=6"
   },
   "bugs": {
-    "url": "https://github.com/facebookincubator/create-react-app/issues"
+    "url": "https://github.com/calimoto-GmbH/create-react-app/issues"
   },
   "files": [
     "bin",
