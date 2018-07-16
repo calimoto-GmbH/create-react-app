@@ -46,6 +46,8 @@ module.exports = function(
     prod: "NODE_ENV=production create-symlinks",
   };
 
+  appPackage.symlinkingModules = [];
+
   fs.writeFileSync(
     path.join(appPath, 'package.json'),
     JSON.stringify(appPackage, null, 2)
