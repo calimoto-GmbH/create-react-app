@@ -41,6 +41,9 @@ module.exports = function(
     build: 'react-scripts build',
     test: 'react-scripts test --env=jsdom',
     eject: 'react-scripts eject',
+    "create-symlinks": "react-scripts create-symlinks",
+    dev: "NODE_ENV=development create-symlinks",
+    prod: "NODE_ENV=production create-symlinks",
   };
 
   fs.writeFileSync(
@@ -145,7 +148,6 @@ module.exports = function(
 
   console.log();
   console.log(`Success! Created ${appName} at ${appPath}`);
-  console.log("Custom build with calimoto.");
   console.log('Inside that directory, you can run several commands:');
   console.log();
   console.log(chalk.cyan(`  ${displayedCommand} start`));
