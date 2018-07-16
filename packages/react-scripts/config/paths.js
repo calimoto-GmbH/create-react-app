@@ -37,9 +37,9 @@ if(fs.existsSync(customSymlinksPath)){
     const realPath = fs.realpathSync(currentSymlinkPath);
 
     if(fs.lstatSync(realPath).isDirectory()){
-      customSymlinksPaths = realPath;
+      customSymlinksPaths.push(realPath);
     }else{
-      customSymlinksPaths = path.dirname(realPath);
+      customSymlinksPaths.push(path.dirname(realPath));
     }
 
 
@@ -47,7 +47,7 @@ if(fs.existsSync(customSymlinksPath)){
 
     //Note: The name of a symlink is also a node_module name!
     const modulePath = path.resolve(resolveApp("node_modules"), symlink.replace(".symlink", ""));
-    includingCustomNodeModulesPaths.push(modulePath)
+    includingCustomNodeModulesPaths.push(modulePath + "/src")
   });
 }
 
