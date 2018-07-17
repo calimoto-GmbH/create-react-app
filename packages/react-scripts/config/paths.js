@@ -22,8 +22,7 @@ const envPublicUrl = process.env.PUBLIC_URL;
 let customSymlinksPaths = [];
 let includingCustomNodeModulesPaths = [];
 
-const appPackageJson = JSON.parse(fs.readFileSync(resolveApp("package.json")));
-const symlinks = appPackageJson.symlinkingModules || [];
+const symlinks = require(resolveApp("package.json")).symlinkingModules || [];
 
 const customSymlinksPath = path.resolve(resolveApp("src"), "./symlinks");
 
@@ -43,8 +42,8 @@ symlinks.forEach((symlink) => {
   //Do the things for includingCustomNodeModulesPaths.
 
   //Note: The name of a symlink is also a node_module name!
-  const modulePath = path.resolve(resolveApp("node_modules"), symlink.replace(".symlink", ""));
-  includingCustomNodeModulesPaths.push(modulePath + "/src")
+  const modulePath = path.resolve(resolveApp("node_modules"), symlink, "src");
+  includingCustomNodeModulesPaths.push(modulePath)
 });
 
 
