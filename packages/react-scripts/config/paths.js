@@ -22,36 +22,30 @@ const envPublicUrl = process.env.PUBLIC_URL;
 let customSymlinksPaths = [];
 let includingCustomNodeModulesPaths = [];
 
+const appPackageJson = JSON.parse(fs.readFileSync(resolveApp("package.json")));
+const symlinks = appPackageJson.symlinkingModules || [];
+
 const customSymlinksPath = path.resolve(resolveApp("src"), "./symlinks");
-if(fs.existsSync(customSymlinksPath)){
-  const symlinks = fs.readdirSync(customSymlinksPath);
-   symlinks.forEach((symlink)=>{
 
-    // The symlink has to have a ".symlink" extension.
-    if(path.extname(symlink) !== ".symlink"){
-      return;
-    }
+symlinks.forEach((symlink) => {
 
-    //Do the things for customSymlinksPaths.
-    const currentSymlinkPath = path.resolve(customSymlinksPath, symlink);
-    const realPath = fs.realpathSync(currentSymlinkPath);
+  //Do the things for customSymlinksPaths.
+  const currentSymlinkPath = path.resolve(customSymlinksPath, symlink + ".symlink");
+  const realPath = fs.realpathSync(currentSymlinkPath);
 
-    if(fs.lstatSync(realPath).isDirectory()){
-      customSymlinksPaths.push(realPath);
-    }else{
-      customSymlinksPaths.push(path.dirname(realPath));
-    }
+  if (fs.lstatSync(realPath).isDirectory()) {
+    customSymlinksPaths.push(realPath);
+  } else {
+    customSymlinksPaths.push(path.dirname(realPath));
+  }
 
 
-    //Do the things for includingCustomNodeModulesPaths.
+  //Do the things for includingCustomNodeModulesPaths.
 
-    //Note: The name of a symlink is also a node_module name!
-    const modulePath = path.resolve(resolveApp("node_modules"), symlink.replace(".symlink", ""));
-    includingCustomNodeModulesPaths.push(modulePath + "/src")
-  });
-}
-
-
+  //Note: The name of a symlink is also a node_module name!
+  const modulePath = path.resolve(resolveApp("node_modules"), symlink.replace(".symlink", ""));
+  includingCustomNodeModulesPaths.push(modulePath + "/src")
+});
 
 
 function ensureSlash(path, needsSlash) {
