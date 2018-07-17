@@ -38,9 +38,8 @@ modules.forEach(moduleName => {
         if (existingSymlinks.indexOf(path.parse(targetUrl).base) === -1) {
 
             //Get the package.json to find out which is the entry point (if given).
-            let main;
             const modulePackageJson = JSON.parse(fs.readFileSync(path.join(cwd + "/../" + moduleName + "/package.json")));
-            main = modulePackageJson.main || "index.js";
+            const main = modulePackageJson.main || "index.js";
 
             // Create symlink.
             fs.symlinkSync(path.join(cwd + "/../" + moduleName + "/" + main), targetUrl);
