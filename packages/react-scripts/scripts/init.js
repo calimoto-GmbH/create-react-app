@@ -32,26 +32,31 @@ module.exports = function(
   const appPackage = require(path.join(appPath, 'package.json'));
   const useYarn = fs.existsSync(path.join(appPath, 'yarn.lock'));
 
+  appPackage.symlinkingModules = [];
+  appPackage.main = "src/index.js";
+
   // Copy over some of the devDependencies
   appPackage.dependencies = appPackage.dependencies || {};
 
   // Setup the script rules
   appPackage.scripts = {
-    start: 'react-scripts start',
-    build: 'react-scripts build',
-    test: 'react-scripts test --env=jsdom',
-    eject: 'react-scripts eject',
+    "start-js": "react-scripts start",
+    "start": "npm-run-all -p watch-css start-js",
+    "build-js": "react-scripts build",
+    "build": "npm-run-all build-css build-js",
+    "test": 'react-scripts test --env=jsdom',
+    "eject": 'react-scripts eject',
     "create-symlinks": "react-scripts create-symlinks",
-    dev: "NODE_ENV=development create-symlinks",
-    prod: "NODE_ENV=production create-symlinks",
+    "dev": "NODE_ENV=development create-symlinks",
+    "prod": "NODE_ENV=production create-symlinks",
+    "build-css": "node-sass-chokidar --include-path ./src --include-path ./node_modules src/ -o src/",
+    "watch-css": "npm run build-css && node-sass-chokidar --include-path ./src --include-path ./node_modules src/ -o src/ --watch --recursive",
   };
 
-  appPackage.symlinkingModules = [];
-  appPackage.main = "src/index.js";
 
   fs.writeFileSync(
     path.join(appPath, 'package.json'),
-    JSON.stringify(appPackage, null, 2)
+    JSON.stringify(appPackage, null, 4)
   );
 
   const readmeExists = fs.existsSync(path.join(appPath, 'README.md'));
@@ -97,6 +102,8 @@ module.exports = function(
 
   let command;
   let args;
+  let argsCustom;
+  let customPackages = [];
 
   if (useYarn) {
     command = 'yarnpkg';
@@ -104,6 +111,7 @@ module.exports = function(
   } else {
     command = 'npm';
     args = ['install', '--save', verbose && '--verbose'].filter(e => e);
+    argsCustom = ['install', '--save', verbose && '--verbose'].filter(e => e);
   }
   args.push('react', 'react-dom');
 
@@ -112,10 +120,13 @@ module.exports = function(
     appPath,
     '.template.dependencies.json'
   );
+
+
   if (fs.existsSync(templateDependenciesPath)) {
     const templateDependencies = require(templateDependenciesPath).dependencies;
-    args = args.concat(
+    argsCustom = argsCustom.concat(
       Object.keys(templateDependencies).map(key => {
+        customPackages.push(key);
         return `${key}@${templateDependencies[key]}`;
       })
     );
@@ -134,6 +145,14 @@ module.exports = function(
       console.error(`\`${command} ${args.join(' ')}\` failed`);
       return;
     }
+  }
+  
+  console.log("Installing custom packages: " + JSON.stringify(customPackages));
+  console.log();
+  const procCustom = spawn.sync(command, argsCustom, { stdio: 'inherit' });
+  if (procCustom.status !== 0) {
+    console.error(`\`${command} ${args.join(' ')}\` failed`);
+    return;
   }
 
   // Display the most elegant way to cd.
