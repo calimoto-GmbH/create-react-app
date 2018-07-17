@@ -47,6 +47,7 @@ module.exports = function(
   };
 
   appPackage.symlinkingModules = [];
+  appPackage.main = "src/index.js";
 
   fs.writeFileSync(
     path.join(appPath, 'package.json'),
