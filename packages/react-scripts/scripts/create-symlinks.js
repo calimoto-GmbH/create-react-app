@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const camelcase = require("camelcase");
+const lnf = require("lnf");
 
 /**
  * This file checks if the symlinks for a module exists and if not creates it. 😎
@@ -19,7 +20,7 @@ const modules = thisPackageJson.symlinkingModules;
 
 // Where the symlinks will be saved.
 const symlinkPath = path.join(cwd + "/src/symlinks/");
-if(!fs.existsSync(symlinkPath)){
+if (!fs.existsSync(symlinkPath)) {
     fs.mkdirSync(symlinkPath);
 }
 //Read the already existing symlinks.
@@ -34,16 +35,13 @@ modules.forEach(moduleName => {
 
         // Create the target url for the symlink.
         const targetUrl = symlinkPath + moduleName + ".symlink";
-        // Check if symlink exists.
-        if (existingSymlinks.indexOf(path.parse(targetUrl).base) === -1) {
 
-            //Get the package.json to find out which is the entry point (if given).
-            const modulePackageJson = JSON.parse(fs.readFileSync(path.join(cwd + "/../" + moduleName + "/package.json")));
-            const main = modulePackageJson.main || "index.js";
+        //Get the package.json to find out which is the entry point (if given).
+        const modulePackageJson = JSON.parse(fs.readFileSync(path.join(cwd + "/../" + moduleName + "/package.json")));
+        const main = modulePackageJson.main || "index.js";
 
-            // Create symlink.
-            fs.symlinkSync(path.join(cwd + "/../" + moduleName + "/" + main), targetUrl);
-        }
+        // Create symlink. Use this module to overwrite the symlink if it's already exists.
+        lnf.sync(path.join(cwd + "/../" + moduleName + "/" + main), targetUrl);
     }
 
     //Build the get-file on development and production mode.
