@@ -38,6 +38,7 @@ const openBrowser = require('react-dev-utils/openBrowser');
 const paths = require('../config/paths');
 const config = require('../config/webpack.config.dev');
 const createDevServerConfig = require('../config/webpackDevServer.config');
+const childProcess = require("child_process");
 
 const useYarn = fs.existsSync(paths.yarnLockFile);
 const isInteractive = process.stdout.isTTY;
@@ -46,6 +47,8 @@ const isInteractive = process.stdout.isTTY;
 if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
   process.exit(1);
 }
+
+startSymlinkedModules();
 
 // Tools like Cloud9 rely on this.
 const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 3000;
@@ -87,6 +90,7 @@ choosePort(HOST, DEFAULT_PORT)
       proxyConfig,
       urls.lanUrlForConfig
     );
+    
     const devServer = new WebpackDevServer(compiler, serverConfig);
     // Launch WebpackDevServer.
     devServer.listen(port, HOST, err => {
@@ -113,3 +117,29 @@ choosePort(HOST, DEFAULT_PORT)
     }
     process.exit(1);
   });
+
+
+/**
+ * Run "npm run start" on the symlinked modules (i.e. for watch css).
+ *
+ * @author Vincent Semrau
+ */
+function startSymlinkedModules() {
+  paths.symlinkedRootPaths.forEach((rootPath) => {
+    try {
+      const process = childProcess.spawn("npm", ["run", "start"], {
+        cwd: rootPath
+      });
+
+      process.on("error", (err) => {
+        console.log(err);
+      });
+
+      process.on("message", (message) => {
+        console.log(message);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  });
+}
