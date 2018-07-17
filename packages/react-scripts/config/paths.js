@@ -28,14 +28,16 @@ const customSymlinksPath = path.resolve(resolveApp("src"), "./symlinks");
 
 symlinks.forEach((symlink) => {
 
-  //Do the things for customSymlinksPaths.
-  const currentSymlinkPath = path.resolve(customSymlinksPath, symlink + ".symlink");
-  const realPath = fs.realpathSync(currentSymlinkPath);
+  if (process.env.NODE_ENV === "development") {
+    //Do the things for customSymlinksPaths.
+    const currentSymlinkPath = path.resolve(customSymlinksPath, symlink + ".symlink");
+    const realPath = fs.realpathSync(currentSymlinkPath);
 
-  if (fs.lstatSync(realPath).isDirectory()) {
-    customSymlinksPaths.push(realPath);
-  } else {
-    customSymlinksPaths.push(path.dirname(realPath));
+    if (fs.lstatSync(realPath).isDirectory()) {
+      customSymlinksPaths.push(realPath);
+    } else {
+      customSymlinksPaths.push(path.dirname(realPath));
+    }
   }
 
 
