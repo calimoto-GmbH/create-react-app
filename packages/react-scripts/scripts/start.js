@@ -131,13 +131,14 @@ function startSymlinkedModules() {
         cwd: rootPath
       });
 
-      process.on("error", (err) => {
-        console.log(err);
+      process.stdout.on("data", (data) => {
+        console.log(data.toString());
       });
 
-      process.on("message", (message) => {
-        console.log(message);
+      process.stderr.on("data", (data) => {
+        console.log(data.toString());
       });
+
     } catch (error) {
       console.log(error);
     }
