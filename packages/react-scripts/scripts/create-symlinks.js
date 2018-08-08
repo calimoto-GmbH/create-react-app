@@ -30,6 +30,8 @@ let getModuleFile = "";
 
 modules.forEach(moduleName => {
 
+    let scssPath;
+
     //Create the symlinks only in development mode.
     if (process.env.NODE_ENV === "development") {
 
@@ -42,7 +44,15 @@ modules.forEach(moduleName => {
 
         // Create symlink. Use this module to overwrite the symlink if it's already exists.
         lnf.sync(path.join(cwd + "/../" + moduleName + "/" + main), targetUrl);
+
+        //Create scss import module. Note: Only once can be imported.
+        scssPath = modulePackageJson.scss ? path.join("../../../" + moduleName + "/" + modulePackageJson.scss) : null;
+    }else{
+        const modulePackageJson = require(moduleName + "/package.json");
+        //Create scss import module. Note: Only once can be imported.
+        scssPath = modulePackageJson.scss ? path.join( moduleName + "/" + modulePackageJson.scss) : null;
     }
+
 
     //Build the get-file on development and production mode.
 
@@ -58,6 +68,11 @@ modules.forEach(moduleName => {
         }
         export {${camelcasedModuleName}};
     `;
+
+    //Create a scss file which imports the scss.
+    if(scssPath){
+        fs.writeFileSync(symlinkPath + moduleName + ".scss", `@import "${scssPath}";`)
+    }
 });
 
 //Write the get-module file.
