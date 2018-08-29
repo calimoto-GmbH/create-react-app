@@ -21,6 +21,7 @@ const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const paths = require('./paths');
 const getClientEnvironment = require('./env');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const CompressionPlugin = require('compression-webpack-plugin');
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // It requires a trailing slash, or the file assets will get an incorrect path.
@@ -52,13 +53,34 @@ const cssFilename = 'static/css/[name].[contenthash:8].css';
 // To have this structure working with relative paths, we have to use custom options.
 const extractTextPluginOptions = shouldUseRelativeAssetPaths
   ? // Making sure that the publicPath goes back to to build folder.
-    { publicPath: Array(cssFilename.split('/').length).join('../') }
+  { publicPath: Array(cssFilename.split('/').length).join('../') }
   : {};
 
 const optionalPlugins = [];
-if(!(process.env.DONT_ANALIZE_BUNDLE == "true")){
-  optionalPlugins.push(new BundleAnalyzerPlugin());
+if (!(process.env.AWS == "true")) {
+  optionalPlugins.push(
+    new BundleAnalyzerPlugin(),
+    new CompressionPlugin({
+      asset: "[path][query]",
+      algorithm: "gzip",
+      test: /\.html$/,
+      minRatio: 5,
+      cache: false,
+    })
+  );
+} else {
+  optionalPlugins.push(
+    new CompressionPlugin({
+      asset: "[path][query]",
+      algorithm: "gzip",
+      test: /\.js$|\.css$|\.html$/,
+      minRatio: 5,
+      cache: false,
+    })
+  )
 }
+
+
 
 
 // This is the production configuration.
