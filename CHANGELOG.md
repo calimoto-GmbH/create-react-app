@@ -1,3 +1,35 @@
+## 2.0.2 (October 1, 2018)
+
+TODO (work in progress)
+
+## 1.1.5 (August 24, 2018)
+
+* `react-scripts`
+
+  * Update the `webpack-dev-server` dependency
+
+* `react-dev-utils`
+
+  * [#4866](https://github.com/facebook/create-react-app/pull/4866) Fix a Windows-only vulnerability (`CVE-2018-6342`) in the development server ([@acdlite](https://github.com/acdlite))
+  * Update the `sockjs-client` dependency
+
+#### Committers: 1
+- Andrew Clark ([acdlite](https://github.com/acdlite))
+
+### Migrating from 1.1.4 to 1.1.5
+
+Inside any created project that has not been ejected, run:
+
+```
+npm install --save --save-exact react-scripts@1.1.5
+```
+
+or
+
+```
+yarn add --exact react-scripts@1.1.5
+```
+
 ## 1.1.4 (April 3, 2018)
 
 #### :bug: Bug Fix
