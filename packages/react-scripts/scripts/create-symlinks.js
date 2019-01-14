@@ -2,6 +2,8 @@ const fs = require("fs");
 const path = require("path");
 const camelcase = require("camelcase");
 const lnf = require("lnf");
+const paths = require('../config/paths');
+const childProcess = require("child_process");
 
 /**
  * This file checks if the symlinks for a module exists and if not creates it. 😎
@@ -12,6 +14,7 @@ const lnf = require("lnf");
 */
 
 const cwd = process.cwd();
+createSymlinkOnSymlinkedModules();
 
 // Which modules get a symlink.
 const thisPackageJson = JSON.parse(fs.readFileSync(path.join(cwd + "/package.json")));
@@ -28,8 +31,10 @@ const existingSymlinks = fs.readdirSync(symlinkPath);
 // The get module file as string.
 let getModuleFile = "";
 
-modules.forEach(moduleName => {
+modules.forEach(fullModuleName => {
 
+    const moduleNameSplitted = fullModuleName.split("/");
+    const moduleName = moduleNameSplitted[1] || moduleNameSplitted[0];
     let scssPath;
 
     //Create the symlinks only in development mode.
@@ -48,9 +53,10 @@ modules.forEach(moduleName => {
         //Create scss import module. Note: Only once can be imported.
         scssPath = modulePackageJson.scss ? path.join("../../../" + moduleName + "/" + modulePackageJson.scss) : null;
     }else{
-        const modulePackageJson = require(moduleName + "/package.json");
+        const modulePackageJson = require(fullModuleName + "/package.json");
         //Create scss import module. Note: Only once can be imported.
-        scssPath = modulePackageJson.scss ? path.join( moduleName + "/" + modulePackageJson.scss) : null;
+        scssPath = modulePackageJson.scss ? path.join( fullModuleName + "/" + modulePackageJson.scss) : null;
+        console.log(scssPath);
     }
 
 
@@ -64,7 +70,7 @@ modules.forEach(moduleName => {
             if(process.env.NODE_ENV === "development"){
                 ${camelcasedModuleName} = require("symlinks/${moduleName}.symlink").default;
             }else{
-            ${camelcasedModuleName} = require("${moduleName}").default;
+            ${camelcasedModuleName} = require("${fullModuleName}").default;
         }
         export {${camelcasedModuleName}};
     `;
@@ -77,3 +83,22 @@ modules.forEach(moduleName => {
 
 //Write the get-module file.
 fs.writeFileSync(symlinkPath + "get-modules.js", getModuleFile);
+
+/**
+ * Run "npm run build" on the symlinked modules (i.e. for watch css).
+ *
+ * @author Vincent Semrau
+ */
+function createSymlinkOnSymlinkedModules() {
+  
+    paths.symlinkedRootPaths.forEach((rootPath) => {
+      try {
+        childProcess.execSync("npm run create-symlinks", {
+          cwd: rootPath
+        });  
+  
+      } catch (error) {
+        console.log(error);
+      }
+    });
+  }

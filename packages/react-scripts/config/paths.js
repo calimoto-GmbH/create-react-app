@@ -28,7 +28,10 @@ const symlinkedRootPaths = [];
 
 const customSymlinksPath = path.resolve(resolveApp("src"), "./symlinks");
 
-moduleNames.forEach((moduleName) => {
+moduleNames.forEach((fullModuleName) => {
+
+  const moduleNameSplitted = fullModuleName.split("/");
+  const moduleName = moduleNameSplitted[1] || moduleNameSplitted[0];
 
   if (process.env.NODE_ENV === "development") {
     //Do the things for customSymlinksPaths.
@@ -41,15 +44,21 @@ moduleNames.forEach((moduleName) => {
       customSymlinksPaths.push(path.dirname(realPath));
     }
 
+
     //The root directories of the symlinks.
-    symlinkedRootPaths.push(path.resolve(resolveApp("../" + moduleName)));
+    symlinkedRootPaths.push(path.resolve(resolveApp("../" + fullModuleName)));
+
   }
+  else {
+    symlinkedRootPaths.push(path.resolve(resolveApp("./node_modules/" + fullModuleName)));
+  }
+
 
 
   //Do the things for includingCustomNodeModulesPaths.
 
   //Note: The name of a symlink is also a node_module name!
-  const modulePath = path.resolve(resolveApp("node_modules"), moduleName, "src");
+  const modulePath = path.resolve(resolveApp("node_modules"), fullModuleName, "src");
   includingCustomNodeModulesPaths.push(modulePath)
 });
 

@@ -33,6 +33,7 @@ const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages');
 const printHostingInstructions = require('react-dev-utils/printHostingInstructions');
 const FileSizeReporter = require('react-dev-utils/FileSizeReporter');
 const printBuildError = require('react-dev-utils/printBuildError');
+const childProcess = require("child_process");
 
 const measureFileSizesBeforeBuild =
   FileSizeReporter.measureFileSizesBeforeBuild;
@@ -42,6 +43,8 @@ const useYarn = fs.existsSync(paths.yarnLockFile);
 // These sizes are pretty large. We'll warn for bundles exceeding them.
 const WARN_AFTER_BUNDLE_GZIP_SIZE = 512 * 1024;
 const WARN_AFTER_CHUNK_GZIP_SIZE = 1024 * 1024;
+
+// buildSymlinkedModules();
 
 // Warn and crash if required files are missing
 if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
@@ -154,5 +157,29 @@ function copyPublicFolder() {
   fs.copySync(paths.appPublic, paths.appBuild, {
     dereference: true,
     filter: file => file !== paths.appHtml,
+  });
+}
+
+/**
+ * Run "npm run build" on the symlinked modules (i.e. for watch css).
+ *
+ * @author Vincent Semrau
+ */
+function buildSymlinkedModules() {
+  
+  paths.symlinkedRootPaths.forEach((rootPath) => {
+    console.log(rootPath);
+    try {
+      // const process = childProcess.execSync("npm", ["run", "build"], {
+      const process = childProcess.execSync("npm run build", {
+        cwd: rootPath
+      });
+
+      console.log(process.toString());
+
+
+    } catch (error) {
+      // console.log(error);
+    }
   });
 }
